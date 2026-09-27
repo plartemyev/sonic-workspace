@@ -1,0 +1,5 @@
+1_plain: 1114
+2_nomask: 1256
+3_mask: 0
+4_inverted: 1256
+VERDICT: BUG-REPRODUCED
