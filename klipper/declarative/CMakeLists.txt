@@ -44,4 +44,9 @@ ecm_target_qml_sources(klipperplugin VERSION 0.1 SOURCES
     qml/EditPage.qml
 )
 
+qt_add_shaders(klipperplugin "klipper_clipboardfade_shader"
+    PREFIX "/qt/qml/org/kde/plasma/private/clipboard"
+    FILES shaders/clipboardfade.frag
+)
+
 ecm_finalize_qml_module(klipperplugin)

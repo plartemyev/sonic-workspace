@@ -10,7 +10,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls as QQC
 import QtQuick.Layouts
-import QtQuick.Effects
 
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.extras as PlasmaExtras
@@ -78,11 +77,6 @@ PlasmaComponents.ItemDelegate {
     KeyNavigation.right: toolButtonsLoader.active ? (toolButtonsLoader.item as DelegateToolButtons).defaultButton : toolButtonsLoader
     KeyNavigation.left: menuItem
 
-    ListView.onIsCurrentItemChanged: {
-        if (ListView.isCurrentItem) {
-            labelMask.source = label // calculate on demand
-        }
-    }
     ListView.onPooled: if (expandButtonLoader.active) {
         expandButtonLoader.item.checked = false;
     }
@@ -104,32 +98,22 @@ PlasmaComponents.ItemDelegate {
     }
 
     // this stuff here is used so we can fade out the text behind the tool buttons
-    Item {
-        id: labelMaskSource
+    ShaderEffectSource {
+        id: labelSource
         anchors.fill: label
+        sourceItem: label
         visible: false
-
-        Rectangle {
-            anchors.centerIn: parent
-            rotation: LayoutMirroring.enabled ? 90 : -90
-            width: parent.height
-            height: parent.width
-
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "white" }
-                GradientStop { position: menuItem.gradientThreshold - 0.25; color: "white"}
-                GradientStop { position: menuItem.gradientThreshold; color: "transparent"}
-                GradientStop { position: 1; color: "transparent"}
-            }
-        }
+        smooth: true
     }
 
-    MultiEffect {
+    ShaderEffect {
         id: labelMask
         anchors.fill: label
-        maskEnabled: true
-        maskSource: labelMaskSource
-        visible: !!source && menuItem.ListView.isCurrentItem
+        visible: menuItem.ListView.isCurrentItem
+        property variant source: labelSource
+        property real fadeStart: menuItem.gradientThreshold
+        property real mirror: LayoutMirroring.enabled ? 1.0 : 0.0
+        fragmentShader: "shaders/clipboardfade.frag.qsb"
 
         TapHandler {
             enabled: !(toolButtonsLoader.item as DelegateToolButtons)?.hovered // https://bugreports.qt.io/browse/QTBUG-108821
